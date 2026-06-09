@@ -1,8 +1,9 @@
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
 
 namespace StorageApi;
 
@@ -17,6 +18,10 @@ public class Program
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
+
+        builder.Services.AddDbContext<StorageApiContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("StorageApiContext")
+        ?? throw new System.InvalidOperationException("Connection string 'StorageApiContext' not found.")));
 
         var app = builder.Build();
 
