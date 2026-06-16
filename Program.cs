@@ -23,21 +23,28 @@ public class Program
     options.UseSqlServer(builder.Configuration.GetConnectionString("StorageApiContext")
         ?? throw new System.InvalidOperationException("Connection string 'StorageApiContext' not found.")));
 
+        // Add Swagger
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
+
+            // Activate Swagger UI if Dev
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "StorageApi v1");
+            });
         }
 
         app.UseHttpsRedirection();
-
         app.UseAuthorization();
-
-
         app.MapControllers();
-
         app.Run();
     }
 }
