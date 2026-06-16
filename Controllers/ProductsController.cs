@@ -18,9 +18,24 @@ public class ProductsController : ControllerBase
 
     // GET: api/Product
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProductDto>>> GetProduct()
+    public async Task<ActionResult<IEnumerable<ProductDto>>> GetProduct([FromQuery] string? category = null, [FromQuery] string? name = null)
     {
-        var products = await _context.Product.ToListAsync();
+        // Start queryable db query via EF Core
+        var query = _context.Product.AsQueryable();
+
+        // 1. Filter using category if parameter in querystring
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            query = query.Where(p => p.Category.ToLower() == category.ToLower());
+        }
+
+        // 2. Filter using product name (partial name)
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(p => p.Name.ToLower().Contains(name.ToLower()));
+        }
+
+        var products = await query.ToListAsync();
 
         // Mappa från Product till ProductDto
         var productDtos = products.Select(p => new ProductDto
